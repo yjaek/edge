@@ -2,8 +2,8 @@
 
 **Edge** is a probabilistic trading framework for medium-term directional trading (~6 months horizon) in stocks and long call options. It estimates win probability (**P_win**) from blended signals, computes realistic **expected value (EV / expectancy)**, sizes positions dynamically, and builds diversified portfolios with active tilt.
 
-Core philosophy (from *Trading in the Zone* and Van K. Tharp):  
-- Trading is a game of large-sample probabilities — focus on process and positive expectancy, not being right on every trade.  
+Core philosophy (from *Trading in the Zone* and Van K. Tharp):
+- Trading is a game of large-sample probabilities — focus on process and positive expectancy, not being right on every trade.
 - All estimates are forward-looking and subject to change; past signal performance does not guarantee future results.
 
 ## 1. P_win – Estimated Win Probability
@@ -39,22 +39,22 @@ P_win is calculated using a blended, semi-quantitative model that synthesizes pr
    | Net Social Sentiment       | ((Score − 50) / 50) × 20                             | ±20%      | 82 → +12.8%                            |
    | Upside Breakout            | ((Score − 50) / 50) × 20                             | ±20%      | 89 → +15.6%                            |
 
-2. **Weighted Total Delta**  
-   Apply weights (sum to 100%):  
-   - Analysts' Ratings: 25%  
-   - Smart Score: 15%  
-   - Net Options Sentiment: 20%  
-   - Net Social Sentiment: 20%  
-   - Upside Breakout: 20%  
+2. **Weighted Total Delta**
+   Apply weights (sum to 100%):
+   - Analysts' Ratings: 25%
+   - Smart Score: 15%
+   - Net Options Sentiment: 20%
+   - Net Social Sentiment: 20%
+   - Upside Breakout: 20%
 
    Total Delta = ∑ (each delta × its weight)
 
-3. **Final P_win (Sigmoid Bounding)**  
-   z = total_delta / 100  
-   P_win = 1 / (1 + e^(-z))  
+3. **Final P_win (Sigmoid Bounding)**
+   z = total_delta / 100
+   P_win = 1 / (1 + e^(-z))
    (Logistic sigmoid function; ensures 0% < P_win < 100%, with non-linear scaling near 50%.)
 
-4. **Optional Confidence Interval**  
+4. **Optional Confidence Interval**
    Estimate ~±5–7% around P_win, factoring in market risks (via simple simulation or qualitative judgment).
 
 ### Customization Notes
@@ -66,29 +66,29 @@ P_win is calculated using a blended, semi-quantitative model that synthesizes pr
 
 EV measures the average net profit/loss per trade (in R units) over many repetitions. Positive EV = mathematical edge.
 
-**Standard Formula** (Van Tharp – R units):  
+**Standard Formula** (Van Tharp – R units):
 EV = (P_win × Avg R-multiple on wins) + ((1 - P_win) × Avg R-multiple on losses)
 
-- Avg R-multiple on wins = Planned R:R × Capture Rate (60–85%)  
+- Avg R-multiple on wins = Planned R:R × Capture Rate (60–85%)
 - Avg R-multiple on losses ≈ –1.0 to –1.1
 
-**Planning Approximation** (conservative):  
+**Planning Approximation** (conservative):
 EV ≈ P_win × (Planned R:R × Capture Rate) − (1 − P_win) × 1
 
 **With Costs/Slippage**: Deduct round-trip costs from Avg Win or add to Avg Loss.
 
-**Example**:  
-P_win = 0.48, Planned R:R = 3.0, Capture = 0.75 → Avg Win = 2.25R  
+**Example**:
+P_win = 0.48, Planned R:R = 3.0, Capture = 0.75 → Avg Win = 2.25R
 EV = (0.48 × 2.25) + (0.52 × –1.05) = **+0.534R**
 
 **Rules**: Only take trades where EV > 0.3–0.5R (buffers variance).
 
 ## Next Steps
-- Backtest signal weights and capture rates  
-- Integrate into portfolio optimization (HRP with EV tilt)  
+- Backtest signal weights and capture rates
+- Integrate into portfolio optimization (HRP with EV tilt)
 - Add dynamic sizing: risk % = base (0.5–1.5%) × mild EV scaling
 
-**Disclaimer**  
+**Disclaimer**
 This is **not financial advice**. Trading involves substantial risk of loss. All estimates are forward-looking and for educational/personal use only. Past/simulated performance does not guarantee future results. Use at your own risk.
 
 Focus on process — let the math compound. 📈
@@ -99,3 +99,37 @@ Focus on process — let the math compound. 📈
 # Clone the repo
 git clone https://github.com/YOUR_USERNAME/edge.git
 
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up pre-commit hooks (optional but recommended)
+pre-commit install
+```
+
+## Development Setup
+
+### Pre-commit Hooks
+
+This project uses pre-commit hooks for code formatting and linting:
+- **Black** - Code formatting (100 char line length)
+- **Ruff** - Fast Python linter
+
+Hooks run automatically on `git commit`. To run manually:
+```bash
+pre-commit run --all-files
+```
+
+### Running Tests
+
+```bash
+pytest tests/
+```
+
+### Usage
+
+Calculate expected value from CSV:
+```bash
+python trading/edge.py trading/sample_input.csv -o results.csv
+```
+
+CSV should contain columns: `buy_ratings`, `total_ratings`, `smart_score`, `net_options_sentiment`, `net_social_sentiment`, `upside_breakout`, `win_r`, `loss_r`
