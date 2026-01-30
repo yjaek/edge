@@ -1,0 +1,6 @@
+symbol,buy_ratings,total_ratings,smart_score,net_options_sentiment,net_social_sentiment,upside_breakout,win_r,loss_r
+AAPL,15,16,8.0,89,82,89,2.25,-1.05
+MSFT,12,15,7.5,75,70,80,2.0,-1.0
+GOOGL,8,20,6.0,45,50,55,2.8,-1.1
+TSLA,18,20,9.0,95,90,95,1.7,-1.0
+NVDA,14,16,8.5,85,78,88,2.625,-1.05
